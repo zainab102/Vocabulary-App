@@ -1,0 +1,178 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Vocabulary App</title>
+    <style>
+      :root {
+        --bg: #f4efe6;
+        --card: #fffdf8;
+        --ink: #1f1a14;
+        --muted: #5b4f40;
+        --accent: #d97706;
+        --accent-dark: #b45309;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        min-height: 100vh;
+        display: grid;
+        place-items: center;
+        font-family: "Trebuchet MS", "Segoe UI", sans-serif;
+        color: var(--ink);
+        background: radial-gradient(circle at top left, #fff7ea, var(--bg) 55%);
+      }
+
+      .app {
+        width: min(640px, 92vw);
+        padding: 28px;
+        border-radius: 16px;
+        background: var(--card);
+        box-shadow: 0 10px 30px rgba(60, 40, 10, 0.14);
+      }
+
+      h1 {
+        margin: 0 0 8px;
+        font-size: clamp(1.4rem, 2.8vw, 2rem);
+      }
+
+      p {
+        margin: 0 0 18px;
+        color: var(--muted);
+      }
+
+      .word {
+        margin: 10px 0 14px;
+        font-size: clamp(1.5rem, 4vw, 2.25rem);
+        font-weight: 700;
+      }
+
+      .progress {
+        margin-bottom: 14px;
+        color: var(--muted);
+      }
+
+      input {
+        width: 100%;
+        padding: 12px 14px;
+        border: 1px solid #dfd5c8;
+        border-radius: 10px;
+        font-size: 1rem;
+      }
+
+      .actions {
+        display: flex;
+        gap: 10px;
+        margin-top: 12px;
+      }
+
+      button {
+        border: 0;
+        border-radius: 10px;
+        padding: 10px 14px;
+        cursor: pointer;
+        font-weight: 600;
+      }
+
+      .check {
+        background: var(--accent);
+        color: #fff;
+      }
+
+      .check:hover {
+        background: var(--accent-dark);
+      }
+
+      .next {
+        background: #ece4d7;
+        color: #2d251c;
+      }
+
+      .feedback {
+        min-height: 24px;
+        margin-top: 12px;
+        font-weight: 600;
+      }
+    </style>
+  </head>
+  <body>
+    <main class="app">
+      <h1>Vocabulary Practice</h1>
+      <p>Type the meaning and check your answer.</p>
+      <div id="progress" class="progress"></div>
+      <div id="word" class="word"></div>
+      <input id="answer" placeholder="Your meaning" />
+      <div class="actions">
+        <button class="check" id="checkBtn">Check</button>
+        <button class="next" id="nextBtn">Next</button>
+      </div>
+      <div id="feedback" class="feedback"></div>
+    </main>
+    <script>
+      const vocabulary = [
+        ["hello", "a greeting"],
+        ["world", "the planet we live on"],
+        ["python", "a programming language"],
+        ["tkinter", "a GUI library for Python"],
+        ["flashcard", "a card used for learning"],
+        ["vocabulary", "the set of words used in a language"],
+        ["meaning", "the definition of a word"],
+        ["correct", "right or accurate"],
+        ["incorrect", "wrong or inaccurate"],
+        ["progress", "the process of improving"],
+      ];
+
+      let index = 0;
+      const progressEl = document.getElementById("progress");
+      const wordEl = document.getElementById("word");
+      const answerEl = document.getElementById("answer");
+      const feedbackEl = document.getElementById("feedback");
+
+      function render() {
+        if (index >= vocabulary.length) {
+          progressEl.textContent = "Complete";
+          wordEl.textContent = "All words done.";
+          answerEl.style.display = "none";
+          document.getElementById("checkBtn").disabled = true;
+          document.getElementById("nextBtn").disabled = true;
+          feedbackEl.textContent = "Well done.";
+          return;
+        }
+        progressEl.textContent = `Word ${index + 1} of ${vocabulary.length}`;
+        wordEl.textContent = vocabulary[index][0];
+        feedbackEl.textContent = "";
+        answerEl.value = "";
+        answerEl.focus();
+      }
+
+      document.getElementById("checkBtn").addEventListener("click", () => {
+        const userAnswer = answerEl.value.trim().toLowerCase();
+        const correct = vocabulary[index][1].toLowerCase();
+        if (!userAnswer) {
+          feedbackEl.textContent = "Enter an answer first.";
+          return;
+        }
+        feedbackEl.textContent =
+          userAnswer === correct ? "Correct!" : `Incorrect. ${vocabulary[index][1]}`;
+      });
+
+      document.getElementById("nextBtn").addEventListener("click", () => {
+        if (index < vocabulary.length) index += 1;
+        render();
+      });
+
+      answerEl.addEventListener("keydown", (event) => {
+        if (event.key === "Enter") {
+          document.getElementById("checkBtn").click();
+        }
+      });
+
+      render();
+    </script>
+  </body>
+</html>
