@@ -3,15 +3,19 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Vocabulary App</title>
+    <title>Advanced Vocabulary Trainer</title>
     <style>
       :root {
-        --bg: #f4efe6;
-        --card: #fffdf8;
-        --ink: #1f1a14;
-        --muted: #5b4f40;
-        --accent: #d97706;
-        --accent-dark: #b45309;
+        --bg-a: #efe9dc;
+        --bg-b: #d9e4e8;
+        --panel: #fffdf9;
+        --ink: #1f1f1a;
+        --sub: #5f5a4f;
+        --accent: #0b7a75;
+        --accent-2: #c26d1a;
+        --ok: #1f8a3a;
+        --bad: #b7392b;
+        --line: #ddd6c8;
       }
 
       * {
@@ -20,159 +24,779 @@
 
       body {
         margin: 0;
-        min-height: 100vh;
-        display: grid;
-        place-items: center;
-        font-family: "Trebuchet MS", "Segoe UI", sans-serif;
+        font-family: "Avenir Next", "Segoe UI", sans-serif;
         color: var(--ink);
-        background: radial-gradient(circle at top left, #fff7ea, var(--bg) 55%);
+        background:
+          radial-gradient(circle at 15% 0%, #fff8ee 0%, transparent 45%),
+          radial-gradient(circle at 85% 100%, #ecf8ff 0%, transparent 45%),
+          linear-gradient(140deg, var(--bg-a), var(--bg-b));
+        min-height: 100vh;
       }
 
-      .app {
-        width: min(640px, 92vw);
-        padding: 28px;
-        border-radius: 16px;
-        background: var(--card);
-        box-shadow: 0 10px 30px rgba(60, 40, 10, 0.14);
+      .wrap {
+        width: min(980px, 94vw);
+        margin: 24px auto;
+        display: grid;
+        gap: 16px;
+      }
+
+      .panel {
+        background: var(--panel);
+        border: 1px solid rgba(0, 0, 0, 0.04);
+        border-radius: 18px;
+        box-shadow: 0 12px 40px rgba(26, 30, 24, 0.12);
+      }
+
+      .top {
+        padding: 20px;
       }
 
       h1 {
-        margin: 0 0 8px;
-        font-size: clamp(1.4rem, 2.8vw, 2rem);
+        margin: 0;
+        font-size: clamp(1.35rem, 2.8vw, 2.2rem);
+        letter-spacing: 0.4px;
       }
 
-      p {
-        margin: 0 0 18px;
-        color: var(--muted);
+      .subtitle {
+        margin: 6px 0 0;
+        color: var(--sub);
       }
 
-      .word {
-        margin: 10px 0 14px;
-        font-size: clamp(1.5rem, 4vw, 2.25rem);
-        font-weight: 700;
+      .controls {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+        gap: 10px;
+        margin-top: 14px;
       }
 
-      .progress {
-        margin-bottom: 14px;
-        color: var(--muted);
+      label {
+        display: block;
+        font-size: 0.9rem;
+        margin-bottom: 4px;
+        color: var(--sub);
       }
 
-      input {
+      select,
+      input,
+      button {
+        font: inherit;
+      }
+
+      select,
+      input[type="text"] {
         width: 100%;
-        padding: 12px 14px;
-        border: 1px solid #dfd5c8;
+        border: 1px solid var(--line);
         border-radius: 10px;
-        font-size: 1rem;
+        padding: 10px;
+        background: #fff;
+      }
+
+      .toggle {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding-top: 22px;
       }
 
       .actions {
         display: flex;
-        gap: 10px;
+        flex-wrap: wrap;
+        gap: 8px;
         margin-top: 12px;
       }
 
-      button {
+      .btn {
         border: 0;
         border-radius: 10px;
         padding: 10px 14px;
         cursor: pointer;
-        font-weight: 600;
+        font-weight: 700;
       }
 
-      .check {
+      .btn.primary {
         background: var(--accent);
         color: #fff;
       }
 
-      .check:hover {
-        background: var(--accent-dark);
+      .btn.alt {
+        background: #e9e4d8;
+        color: #2c281e;
       }
 
-      .next {
-        background: #ece4d7;
-        color: #2d251c;
+      .btn.warn {
+        background: var(--accent-2);
+        color: #fff;
+      }
+
+      .main {
+        display: grid;
+        grid-template-columns: 2fr 1fr;
+        gap: 16px;
+      }
+
+      .quiz {
+        padding: 20px;
+      }
+
+      .meta {
+        display: flex;
+        justify-content: space-between;
+        gap: 12px;
+        color: var(--sub);
+        font-size: 0.95rem;
+      }
+
+      .word {
+        margin: 12px 0;
+        font-size: clamp(1.8rem, 5vw, 2.7rem);
+        font-weight: 800;
+      }
+
+      .example {
+        margin: 4px 0 14px;
+        color: var(--sub);
+      }
+
+      #typedSection,
+      #mcqSection {
+        margin-top: 10px;
+      }
+
+      #answerInput {
+        font-size: 1rem;
+      }
+
+      .mcq-grid {
+        display: grid;
+        gap: 8px;
+      }
+
+      .mcq-option {
+        border: 1px solid var(--line);
+        background: #fff;
+        text-align: left;
+        padding: 12px;
+        border-radius: 10px;
+        cursor: pointer;
+      }
+
+      .mcq-option.selected {
+        border-color: var(--accent);
+        box-shadow: 0 0 0 2px rgba(11, 122, 117, 0.12);
+      }
+
+      .timer {
+        margin-top: 14px;
+      }
+
+      .bar {
+        height: 10px;
+        border-radius: 999px;
+        background: #e9e5dc;
+        overflow: hidden;
+      }
+
+      .bar > i {
+        display: block;
+        height: 100%;
+        width: 100%;
+        background: linear-gradient(90deg, #188f89, #0b7a75);
+        transition: width 0.2s linear;
       }
 
       .feedback {
         min-height: 24px;
         margin-top: 12px;
-        font-weight: 600;
+        font-weight: 700;
+      }
+
+      .feedback.ok {
+        color: var(--ok);
+      }
+
+      .feedback.bad {
+        color: var(--bad);
+      }
+
+      .side {
+        padding: 20px;
+      }
+
+      .stat {
+        display: flex;
+        justify-content: space-between;
+        padding: 8px 0;
+        border-bottom: 1px dashed #e0d7c8;
+      }
+
+      details {
+        margin-top: 14px;
+      }
+
+      summary {
+        cursor: pointer;
+        font-weight: 700;
+      }
+
+      .add-grid {
+        display: grid;
+        gap: 8px;
+        margin-top: 8px;
+      }
+
+      @media (max-width: 800px) {
+        .main {
+          grid-template-columns: 1fr;
+        }
       }
     </style>
   </head>
   <body>
-    <main class="app">
-      <h1>Vocabulary Practice</h1>
-      <p>Type the meaning and check your answer.</p>
-      <div id="progress" class="progress"></div>
-      <div id="word" class="word"></div>
-      <input id="answer" placeholder="Your meaning" />
-      <div class="actions">
-        <button class="check" id="checkBtn">Check</button>
-        <button class="next" id="nextBtn">Next</button>
-      </div>
-      <div id="feedback" class="feedback"></div>
-    </main>
+    <div class="wrap">
+      <section class="panel top">
+        <h1>Advanced Vocabulary Trainer</h1>
+        <p class="subtitle">Practice by typing or MCQ with streaks, hints, timer, and saved progress.</p>
+
+        <div class="controls">
+          <div>
+            <label for="modeSelect">Practice mode</label>
+            <select id="modeSelect">
+              <option value="typed">Typed answer</option>
+              <option value="mcq">Multiple choice</option>
+            </select>
+          </div>
+          <div>
+            <label for="difficultySelect">Difficulty</label>
+            <select id="difficultySelect">
+              <option value="all">All</option>
+              <option value="easy">Easy</option>
+              <option value="medium">Medium</option>
+              <option value="hard">Hard</option>
+            </select>
+          </div>
+          <div class="toggle">
+            <input id="shuffleToggle" type="checkbox" checked />
+            <label for="shuffleToggle">Shuffle words</label>
+          </div>
+          <div class="toggle">
+            <input id="timerToggle" type="checkbox" />
+            <label for="timerToggle">20s timer</label>
+          </div>
+        </div>
+
+        <div class="actions">
+          <button id="startBtn" class="btn primary">Start Session</button>
+          <button id="restartBtn" class="btn alt">Restart</button>
+          <button id="hintBtn" class="btn warn">Hint</button>
+          <button id="skipBtn" class="btn alt">Skip</button>
+        </div>
+      </section>
+
+      <section class="main">
+        <article class="panel quiz">
+          <div class="meta">
+            <span id="progressText">Not started</span>
+            <span id="difficultyTag">Difficulty: -</span>
+          </div>
+
+          <div id="wordText" class="word">Press Start Session</div>
+          <p id="exampleText" class="example"></p>
+
+          <div id="typedSection">
+            <input id="answerInput" type="text" placeholder="Type the meaning" />
+            <div class="actions">
+              <button id="checkBtn" class="btn primary">Check</button>
+              <button id="nextBtn" class="btn alt">Next</button>
+            </div>
+          </div>
+
+          <div id="mcqSection" hidden>
+            <div id="mcqOptions" class="mcq-grid"></div>
+            <div class="actions">
+              <button id="submitMcqBtn" class="btn primary">Submit Choice</button>
+              <button id="nextMcqBtn" class="btn alt">Next</button>
+            </div>
+          </div>
+
+          <div class="timer" id="timerWrap" hidden>
+            <div class="bar"><i id="timerFill"></i></div>
+            <p id="timerText" class="subtitle">20s left</p>
+          </div>
+
+          <div id="feedback" class="feedback"></div>
+        </article>
+
+        <aside class="panel side">
+          <h3>Session Stats</h3>
+          <div class="stat"><span>Score</span><strong id="scoreStat">0</strong></div>
+          <div class="stat"><span>Correct</span><strong id="correctStat">0</strong></div>
+          <div class="stat"><span>Attempted</span><strong id="attemptedStat">0</strong></div>
+          <div class="stat"><span>Streak</span><strong id="streakStat">0</strong></div>
+          <div class="stat"><span>Best streak</span><strong id="bestStreakStat">0</strong></div>
+
+          <h3 style="margin-top:14px;">Overall Stats</h3>
+          <div class="stat"><span>Sessions</span><strong id="sessionsAll">0</strong></div>
+          <div class="stat"><span>Total attempts</span><strong id="attemptsAll">0</strong></div>
+          <div class="stat"><span>Total correct</span><strong id="correctAll">0</strong></div>
+
+          <details>
+            <summary>Add custom word</summary>
+            <div class="add-grid">
+              <input id="newWord" type="text" placeholder="Word" />
+              <input id="newDefinition" type="text" placeholder="Meaning" />
+              <input id="newExample" type="text" placeholder="Example sentence (optional)" />
+              <select id="newDifficulty">
+                <option value="easy">Easy</option>
+                <option value="medium" selected>Medium</option>
+                <option value="hard">Hard</option>
+              </select>
+              <button id="addWordBtn" class="btn primary">Add Word</button>
+            </div>
+          </details>
+        </aside>
+      </section>
+    </div>
+
     <script>
-      const vocabulary = [
-        ["hello", "a greeting"],
-        ["world", "the planet we live on"],
-        ["python", "a programming language"],
-        ["tkinter", "a GUI library for Python"],
-        ["flashcard", "a card used for learning"],
-        ["vocabulary", "the set of words used in a language"],
-        ["meaning", "the definition of a word"],
-        ["correct", "right or accurate"],
-        ["incorrect", "wrong or inaccurate"],
-        ["progress", "the process of improving"],
+      const BASE_WORDS = [
+        { word: "hello", definition: "a greeting", difficulty: "easy", example: "She said hello as she entered." },
+        { word: "world", definition: "the planet we live on", difficulty: "easy", example: "The world is full of cultures." },
+        { word: "python", definition: "a programming language", difficulty: "easy", example: "Python is popular for automation." },
+        { word: "meticulous", definition: "showing great attention to detail", difficulty: "medium", example: "She was meticulous when editing the report." },
+        { word: "coherent", definition: "clear and logical", difficulty: "medium", example: "His explanation was coherent and concise." },
+        { word: "ubiquitous", definition: "present or found everywhere", difficulty: "hard", example: "Smartphones are ubiquitous today." },
+        { word: "ephemeral", definition: "lasting for a very short time", difficulty: "hard", example: "Trends on social media can be ephemeral." },
+        { word: "resilient", definition: "able to recover quickly after difficulty", difficulty: "medium", example: "The team stayed resilient under pressure." },
+        { word: "candid", definition: "truthful and straightforward", difficulty: "easy", example: "He gave a candid response." },
+        { word: "pragmatic", definition: "focused on practical results", difficulty: "medium", example: "They took a pragmatic approach." },
       ];
 
-      let index = 0;
-      const progressEl = document.getElementById("progress");
-      const wordEl = document.getElementById("word");
-      const answerEl = document.getElementById("answer");
-      const feedbackEl = document.getElementById("feedback");
+      const STORAGE = {
+        customWords: "vocab_custom_words_v1",
+        overall: "vocab_overall_stats_v1",
+      };
 
-      function render() {
-        if (index >= vocabulary.length) {
-          progressEl.textContent = "Complete";
-          wordEl.textContent = "All words done.";
-          answerEl.style.display = "none";
-          document.getElementById("checkBtn").disabled = true;
-          document.getElementById("nextBtn").disabled = true;
-          feedbackEl.textContent = "Well done.";
-          return;
+      const state = {
+        words: [],
+        session: [],
+        index: -1,
+        selectedOption: "",
+        answeredCurrent: false,
+        score: 0,
+        correct: 0,
+        attempted: 0,
+        streak: 0,
+        bestStreak: 0,
+        timerId: null,
+        timeLeft: 20,
+        mode: "typed",
+        difficulty: "all",
+        shuffle: true,
+        timed: false,
+      };
+
+      const els = {
+        modeSelect: document.getElementById("modeSelect"),
+        difficultySelect: document.getElementById("difficultySelect"),
+        shuffleToggle: document.getElementById("shuffleToggle"),
+        timerToggle: document.getElementById("timerToggle"),
+        startBtn: document.getElementById("startBtn"),
+        restartBtn: document.getElementById("restartBtn"),
+        hintBtn: document.getElementById("hintBtn"),
+        skipBtn: document.getElementById("skipBtn"),
+        progressText: document.getElementById("progressText"),
+        difficultyTag: document.getElementById("difficultyTag"),
+        wordText: document.getElementById("wordText"),
+        exampleText: document.getElementById("exampleText"),
+        typedSection: document.getElementById("typedSection"),
+        mcqSection: document.getElementById("mcqSection"),
+        answerInput: document.getElementById("answerInput"),
+        checkBtn: document.getElementById("checkBtn"),
+        nextBtn: document.getElementById("nextBtn"),
+        mcqOptions: document.getElementById("mcqOptions"),
+        submitMcqBtn: document.getElementById("submitMcqBtn"),
+        nextMcqBtn: document.getElementById("nextMcqBtn"),
+        timerWrap: document.getElementById("timerWrap"),
+        timerFill: document.getElementById("timerFill"),
+        timerText: document.getElementById("timerText"),
+        feedback: document.getElementById("feedback"),
+        scoreStat: document.getElementById("scoreStat"),
+        correctStat: document.getElementById("correctStat"),
+        attemptedStat: document.getElementById("attemptedStat"),
+        streakStat: document.getElementById("streakStat"),
+        bestStreakStat: document.getElementById("bestStreakStat"),
+        sessionsAll: document.getElementById("sessionsAll"),
+        attemptsAll: document.getElementById("attemptsAll"),
+        correctAll: document.getElementById("correctAll"),
+        newWord: document.getElementById("newWord"),
+        newDefinition: document.getElementById("newDefinition"),
+        newExample: document.getElementById("newExample"),
+        newDifficulty: document.getElementById("newDifficulty"),
+        addWordBtn: document.getElementById("addWordBtn"),
+      };
+
+      function shuffleArray(items) {
+        const arr = [...items];
+        for (let i = arr.length - 1; i > 0; i -= 1) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [arr[i], arr[j]] = [arr[j], arr[i]];
         }
-        progressEl.textContent = `Word ${index + 1} of ${vocabulary.length}`;
-        wordEl.textContent = vocabulary[index][0];
-        feedbackEl.textContent = "";
-        answerEl.value = "";
-        answerEl.focus();
+        return arr;
       }
 
-      document.getElementById("checkBtn").addEventListener("click", () => {
-        const userAnswer = answerEl.value.trim().toLowerCase();
-        const correct = vocabulary[index][1].toLowerCase();
-        if (!userAnswer) {
-          feedbackEl.textContent = "Enter an answer first.";
+      function loadCustomWords() {
+        try {
+          const raw = localStorage.getItem(STORAGE.customWords);
+          const parsed = raw ? JSON.parse(raw) : [];
+          return Array.isArray(parsed) ? parsed : [];
+        } catch {
+          return [];
+        }
+      }
+
+      function saveCustomWords(words) {
+        localStorage.setItem(STORAGE.customWords, JSON.stringify(words));
+      }
+
+      function loadOverallStats() {
+        try {
+          const raw = localStorage.getItem(STORAGE.overall);
+          const parsed = raw ? JSON.parse(raw) : null;
+          if (parsed && typeof parsed === "object") {
+            return {
+              sessions: parsed.sessions || 0,
+              attempted: parsed.attempted || 0,
+              correct: parsed.correct || 0,
+            };
+          }
+        } catch {
+          return null;
+        }
+        return { sessions: 0, attempted: 0, correct: 0 };
+      }
+
+      function saveOverallStats(stats) {
+        localStorage.setItem(STORAGE.overall, JSON.stringify(stats));
+      }
+
+      function refreshWordBank() {
+        const custom = loadCustomWords();
+        state.words = [...BASE_WORDS, ...custom];
+      }
+
+      function getCurrentWord() {
+        return state.session[state.index] || null;
+      }
+
+      function setModeUI() {
+        const typed = state.mode === "typed";
+        els.typedSection.hidden = !typed;
+        els.mcqSection.hidden = typed;
+      }
+
+      function setFeedback(message, kind = "") {
+        els.feedback.className = `feedback${kind ? ` ${kind}` : ""}`;
+        els.feedback.textContent = message;
+      }
+
+      function updateStats() {
+        els.scoreStat.textContent = String(state.score);
+        els.correctStat.textContent = String(state.correct);
+        els.attemptedStat.textContent = String(state.attempted);
+        els.streakStat.textContent = String(state.streak);
+        els.bestStreakStat.textContent = String(state.bestStreak);
+      }
+
+      function updateOverallUI() {
+        const overall = loadOverallStats();
+        els.sessionsAll.textContent = String(overall.sessions);
+        els.attemptsAll.textContent = String(overall.attempted);
+        els.correctAll.textContent = String(overall.correct);
+      }
+
+      function stopTimer() {
+        if (state.timerId) {
+          clearInterval(state.timerId);
+          state.timerId = null;
+        }
+      }
+
+      function startTimer() {
+        stopTimer();
+        if (!state.timed) {
+          els.timerWrap.hidden = true;
           return;
         }
-        feedbackEl.textContent =
-          userAnswer === correct ? "Correct!" : `Incorrect. ${vocabulary[index][1]}`;
-      });
 
-      document.getElementById("nextBtn").addEventListener("click", () => {
-        if (index < vocabulary.length) index += 1;
-        render();
-      });
+        state.timeLeft = 20;
+        els.timerWrap.hidden = false;
+        els.timerFill.style.width = "100%";
+        els.timerText.textContent = "20s left";
 
-      answerEl.addEventListener("keydown", (event) => {
-        if (event.key === "Enter") {
-          document.getElementById("checkBtn").click();
+        state.timerId = setInterval(() => {
+          state.timeLeft -= 1;
+          const pct = (state.timeLeft / 20) * 100;
+          els.timerFill.style.width = `${Math.max(0, pct)}%`;
+          els.timerText.textContent = `${Math.max(0, state.timeLeft)}s left`;
+
+          if (state.timeLeft <= 0) {
+            stopTimer();
+            if (!state.answeredCurrent) {
+              handleIncorrect("Time is up.");
+            }
+          }
+        }, 1000);
+      }
+
+      function normalizeText(value) {
+        return value.trim().toLowerCase().replace(/\s+/g, " ");
+      }
+
+      function buildMcqOptions(word) {
+        const definitions = state.words
+          .filter((w) => w.word !== word.word)
+          .map((w) => w.definition);
+        const distractors = shuffleArray(definitions).slice(0, 3);
+        return shuffleArray([word.definition, ...distractors]);
+      }
+
+      function renderQuestion() {
+        const current = getCurrentWord();
+        if (!current) {
+          endSession();
+          return;
         }
-      });
 
-      render();
+        state.answeredCurrent = false;
+        state.selectedOption = "";
+        setFeedback("");
+
+        els.progressText.textContent = `Word ${state.index + 1} of ${state.session.length}`;
+        els.difficultyTag.textContent = `Difficulty: ${current.difficulty}`;
+        els.wordText.textContent = current.word;
+        els.exampleText.textContent = current.example ? `Example: ${current.example}` : "";
+
+        if (state.mode === "typed") {
+          els.answerInput.value = "";
+          els.answerInput.focus();
+        } else {
+          els.mcqOptions.innerHTML = "";
+          const options = buildMcqOptions(current);
+          options.forEach((definition) => {
+            const button = document.createElement("button");
+            button.className = "mcq-option";
+            button.type = "button";
+            button.textContent = definition;
+            button.addEventListener("click", () => {
+              state.selectedOption = definition;
+              document
+                .querySelectorAll(".mcq-option")
+                .forEach((opt) => opt.classList.remove("selected"));
+              button.classList.add("selected");
+            });
+            els.mcqOptions.appendChild(button);
+          });
+        }
+
+        startTimer();
+      }
+
+      function handleCorrect() {
+        if (state.answeredCurrent) return;
+        state.answeredCurrent = true;
+        stopTimer();
+
+        state.score += 10;
+        state.correct += 1;
+        state.attempted += 1;
+        state.streak += 1;
+        state.bestStreak = Math.max(state.bestStreak, state.streak);
+        updateStats();
+        setFeedback("Correct.", "ok");
+      }
+
+      function handleIncorrect(prefix = "Incorrect.") {
+        if (state.answeredCurrent) return;
+        state.answeredCurrent = true;
+        stopTimer();
+
+        const current = getCurrentWord();
+        state.attempted += 1;
+        state.streak = 0;
+        updateStats();
+        setFeedback(`${prefix} Correct meaning: ${current.definition}`, "bad");
+      }
+
+      function checkTypedAnswer() {
+        const current = getCurrentWord();
+        if (!current) return;
+        const answer = normalizeText(els.answerInput.value);
+        if (!answer) {
+          setFeedback("Enter a meaning first.", "bad");
+          return;
+        }
+
+        const target = normalizeText(current.definition);
+        if (answer === target || target.includes(answer) || answer.includes(target)) {
+          handleCorrect();
+        } else {
+          handleIncorrect();
+        }
+      }
+
+      function submitMcqAnswer() {
+        const current = getCurrentWord();
+        if (!current) return;
+        if (!state.selectedOption) {
+          setFeedback("Select an option first.", "bad");
+          return;
+        }
+
+        if (normalizeText(state.selectedOption) === normalizeText(current.definition)) {
+          handleCorrect();
+        } else {
+          handleIncorrect();
+        }
+      }
+
+      function nextWord() {
+        if (state.index < state.session.length - 1) {
+          state.index += 1;
+          renderQuestion();
+        } else {
+          endSession();
+        }
+      }
+
+      function useHint() {
+        const current = getCurrentWord();
+        if (!current) return;
+
+        const meaning = current.definition;
+        const show = Math.max(2, Math.floor(meaning.length * 0.45));
+        const reveal = meaning.slice(0, show);
+        setFeedback(`Hint: ${reveal}${"*".repeat(Math.max(0, meaning.length - show))}`);
+
+        if (!state.answeredCurrent && state.score > 0) {
+          state.score -= 2;
+          updateStats();
+        }
+      }
+
+      function skipWord() {
+        if (!getCurrentWord()) return;
+        stopTimer();
+        state.attempted += 1;
+        state.streak = 0;
+        updateStats();
+        setFeedback("Skipped.", "bad");
+        nextWord();
+      }
+
+      function endSession() {
+        stopTimer();
+        const total = state.session.length;
+        const accuracy = total ? Math.round((state.correct / total) * 100) : 0;
+
+        els.progressText.textContent = "Session complete";
+        els.wordText.textContent = "Great run.";
+        els.exampleText.textContent = `Score ${state.score} | Accuracy ${accuracy}%`;
+        setFeedback("Start another session to keep improving.", "ok");
+
+        const overall = loadOverallStats();
+        const nextOverall = {
+          sessions: overall.sessions + 1,
+          attempted: overall.attempted + state.attempted,
+          correct: overall.correct + state.correct,
+        };
+        saveOverallStats(nextOverall);
+        updateOverallUI();
+
+        state.session = [];
+        state.index = -1;
+      }
+
+      function startSession() {
+        refreshWordBank();
+        state.mode = els.modeSelect.value;
+        state.difficulty = els.difficultySelect.value;
+        state.shuffle = els.shuffleToggle.checked;
+        state.timed = els.timerToggle.checked;
+
+        setModeUI();
+
+        let words = [...state.words];
+        if (state.difficulty !== "all") {
+          words = words.filter((w) => w.difficulty === state.difficulty);
+        }
+
+        if (!words.length) {
+          setFeedback("No words match this filter. Add custom words or use All.", "bad");
+          return;
+        }
+
+        state.session = state.shuffle ? shuffleArray(words) : words;
+        state.index = 0;
+        state.selectedOption = "";
+        state.answeredCurrent = false;
+        state.score = 0;
+        state.correct = 0;
+        state.attempted = 0;
+        state.streak = 0;
+        state.bestStreak = 0;
+
+        updateStats();
+        renderQuestion();
+      }
+
+      function addCustomWord() {
+        const word = els.newWord.value.trim();
+        const definition = els.newDefinition.value.trim();
+        const example = els.newExample.value.trim();
+        const difficulty = els.newDifficulty.value;
+
+        if (!word || !definition) {
+          setFeedback("Word and meaning are required to add custom vocabulary.", "bad");
+          return;
+        }
+
+        const newEntry = { word, definition, difficulty, example };
+        const existing = loadCustomWords();
+        existing.push(newEntry);
+        saveCustomWords(existing);
+        refreshWordBank();
+
+        els.newWord.value = "";
+        els.newDefinition.value = "";
+        els.newExample.value = "";
+        els.newDifficulty.value = "medium";
+
+        setFeedback(`Added custom word: ${word}`, "ok");
+      }
+
+      function wireEvents() {
+        els.startBtn.addEventListener("click", startSession);
+        els.restartBtn.addEventListener("click", startSession);
+        els.hintBtn.addEventListener("click", useHint);
+        els.skipBtn.addEventListener("click", skipWord);
+        els.checkBtn.addEventListener("click", checkTypedAnswer);
+        els.nextBtn.addEventListener("click", nextWord);
+        els.submitMcqBtn.addEventListener("click", submitMcqAnswer);
+        els.nextMcqBtn.addEventListener("click", nextWord);
+        els.addWordBtn.addEventListener("click", addCustomWord);
+
+        els.answerInput.addEventListener("keydown", (event) => {
+          if (event.key === "Enter") {
+            checkTypedAnswer();
+          }
+        });
+      }
+
+      refreshWordBank();
+      setModeUI();
+      updateStats();
+      updateOverallUI();
+      wireEvents();
     </script>
   </body>
 </html>

@@ -1,6 +1,17 @@
 # Vocabulary App
 
-Simple vocabulary practice app with a web UI ready for Vercel deployment.
+Advanced browser-based vocabulary trainer, ready for Vercel deployment.
+
+## Features
+
+- Typed answer mode and multiple-choice mode
+- Difficulty filtering (`easy`, `medium`, `hard`, or all)
+- Optional timer (20 seconds per word)
+- Score, streak, and accuracy tracking
+- Hint and skip actions
+- Shuffle mode
+- Session and overall progress stats saved in browser storage
+- Add custom vocabulary words from the UI
 
 ## Run locally
 
